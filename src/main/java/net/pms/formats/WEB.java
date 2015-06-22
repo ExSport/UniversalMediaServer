@@ -23,8 +23,6 @@ import net.pms.dlna.DLNAMediaInfo;
 import net.pms.util.FileUtil;
 
 public class WEB extends Format {
-	protected String url = null;
-
 	/**
 	 * {@inheritDoc} 
 	 */
@@ -64,7 +62,6 @@ public class WEB extends Format {
 		if (protocol == null) {
 			return false;
 		} else {
-			url = filename;
 			setMatchedExtension(protocol);
 			return true;
 		}
@@ -82,16 +79,5 @@ public class WEB extends Format {
 	public boolean isCompatible(DLNAMediaInfo media, RendererConfiguration renderer) {
 		// Emulating ps3compatible()
 		return type == IMAGE;
-	}
-
-	@Override
-	public String mimeType() {
-		if (url != null) {
-			Format f = FormatFactory.getAssociatedFormat("." + FileUtil.getUrlExtension(url));
-			if (f != null) {
-				return f.mimeType();
-			}
-		}
-		return super.mimeType();
 	}
 }

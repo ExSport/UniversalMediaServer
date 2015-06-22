@@ -71,6 +71,8 @@ public class RemoteMediaHandler implements HttpHandler {
 			throw new IOException("Bad code");
 		}
 		DLNAMediaSubtitle sid = null;
+		long len = dlna.length();
+		Range range = RemoteUtil.parseRange(t.getRequestHeaders(), len);
 		String mime = root.getDefaultRenderer().getMimeType(dlna.mimeType());
 		//DLNAResource dlna = res.get(0);
 		WebRender render = (WebRender) r;
@@ -113,19 +115,14 @@ public class RemoteMediaHandler implements HttpHandler {
 		}
 
 		m.setMimeType(mime);
-		Range.Byte range = RemoteUtil.parseRange(t.getRequestHeaders(), dlna.length());
 		LOGGER.debug("dumping media " + mime + " " + dlna);
 		InputStream in = dlna.getInputStream(range, root.getDefaultRenderer());
-		if(range.getEnd() == 0) {
-			// For web resources actual length may be unknown until we open the stream
-			range.setEnd(dlna.length());
-		}
 		Headers hdr = t.getResponseHeaders();
 		hdr.add("Content-Type", mime);
 		hdr.add("Accept-Ranges", "bytes");
 		if (range != null) {
-			long end = range.getEnd();
-			long start = range.getStart();
+			long end = range.asByteRange().getEnd();
+			long start = range.asByteRange().getStart();
 			String rStr = start + "-" + end + "/*" ;
 			hdr.add("Content-Range", "bytes " + rStr);
 			if (start != 0) {
